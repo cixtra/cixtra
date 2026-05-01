@@ -866,11 +866,11 @@ document.getElementById('confirmOkBtn').onclick=()=>{if(confirmCb&&confirmCb()!=
 function cancelConfirm(){document.getElementById('confirmOverlay').classList.remove('open');confirmCb=null}
 function confirmReset(){
   showConfirm(
-    '⚠️ Reset ALL Data',
-    'This permanently deletes every trade, rule, bias entry and prop challenge. Type "RESET" to confirm.',
+    '⚠️ Reset Trade Data',
+    'This permanently deletes all trades, daily bias entries and prop challenges. Your rules and protocols are kept. Type "RESET" to confirm.',
     ()=>{
-      [KEY,RKEY,BKEY,PKEY].forEach(k=>localStorage.removeItem(k));
-      toast('All data cleared','err');
+      [KEY,BKEY,PKEY].forEach(k=>localStorage.removeItem(k));
+      toast('Trade data cleared','err');
       setTimeout(()=>{buildDashboard();buildVariables();renderLog()},100);
     },
     true
@@ -1468,7 +1468,7 @@ function defaultRules(){return[
     'Also applies when: mid-range entry in consolidation, news approaching (CPI etc.), Trapped OF present at range boundaries',
     'Even if you miss the move entirely — that is fine. You cannot afford to be the liquidity that funds the real move.',
   ]},
-  {id:2,tag:'FILTER #1',title:'Trapped Order Flow',desc:'The single most impactful variable in your data. Trapped OF present = 11% win rate, -23.8R. Absent = 49% win rate, +62.3R. That is an +86.1R swing from the same CISD entry model. The entry is not the variable. This is.',bullets:[
+  {id:2,tag:'Trapped OF',title:'Trapped Order Flow',desc:'The single most impactful variable in your data. Trapped OF present = 11% win rate, -23.8R. Absent = 49% win rate, +62.3R. That is an +86.1R swing from the same CISD entry model. The entry is not the variable. This is.',bullets:[
     'Definition: Opposing liquidity (FVG, OB, IFVG) between current price and your target that has NOT been filled or inversed yet',
     'It means price is being asked to run through a wall of orders going the other way',
     'Check ALL three timeframes before every single trade: Daily, 4H, 1H',
