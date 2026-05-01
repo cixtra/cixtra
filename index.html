@@ -508,7 +508,7 @@ main{margin-left:var(--sidebar);min-height:100vh;padding:1.75rem 2rem}
               <select id="f-smt"><option value="">—</option><option value="Y">Yes</option><option value="N">No</option></select>
             </div>
             <div class="field"><label>CIX1</label>
-              <select id="f-cix1"><option value="">—</option><option value="Y">Yes (Applied)</option><option value="N">No (BAD — ignored rule)</option></select>
+              <select id="f-cix1"><option value="">—</option><option value="NA">Not Applicable</option><option value="Y">Yes (Applied)</option><option value="N">No (BAD — ignored rule)</option></select>
             </div>
           </div>
         </div>
@@ -660,39 +660,99 @@ main{margin-left:var(--sidebar);min-height:100vh;padding:1.75rem 2rem}
 <!-- TRADE BUDDY -->
 <div id="page-buddy" class="page">
   <div style="max-width:780px">
-    <!-- Header with character -->
-    <div style="display:flex;align-items:center;gap:1.25rem;margin-bottom:1.25rem;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:1.25rem">
-      <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--blue4),rgba(14,165,233,.3));border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.5rem">🎯</div>
-      <div>
-        <div style="font-weight:700;font-size:1rem;letter-spacing:-0.01em">CIX — Trade Buddy</div>
-        <div style="font-size:.74rem;color:var(--txt3);margin-top:2px">ICT model specialist · Trained on your full playbook, rules, variables and data</div>
-        <div style="display:flex;gap:6px;margin-top:6px">
+
+    <!-- Character + Header Card -->
+    <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:1.5rem;margin-bottom:1rem;display:flex;gap:1.5rem;align-items:flex-start;position:relative;overflow:hidden">
+      <!-- Glow behind character -->
+      <div style="position:absolute;top:-20px;left:60px;width:120px;height:120px;background:radial-gradient(circle,rgba(14,165,233,.18) 0%,transparent 70%);pointer-events:none"></div>
+
+      <!-- SVG Character — CIX the analyst -->
+      <div style="flex-shrink:0;width:90px;display:flex;flex-direction:column;align-items:center;gap:6px">
+        <svg width="80" height="90" viewBox="0 0 80 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Body -->
+          <rect x="20" y="48" width="40" height="32" rx="8" fill="#0f172a" stroke="#0ea5e9" stroke-width="1.5"/>
+          <!-- Shirt detail -->
+          <rect x="27" y="52" width="26" height="3" rx="1.5" fill="#0ea5e9" opacity=".4"/>
+          <!-- Tie -->
+          <polygon points="40,55 37,68 40,71 43,68" fill="#0ea5e9" opacity=".7"/>
+          <!-- Head -->
+          <circle cx="40" cy="34" r="16" fill="#1e293b" stroke="#0ea5e9" stroke-width="1.5"/>
+          <!-- Hair -->
+          <path d="M25 30 Q27 20 40 22 Q53 20 55 30" fill="#0ea5e9" opacity=".5"/>
+          <!-- Eyes -->
+          <circle cx="34" cy="33" r="3" fill="#0f172a"/>
+          <circle cx="46" cy="33" r="3" fill="#0f172a"/>
+          <circle cx="35" cy="32" r="1" fill="#38bdf8"/>
+          <circle cx="47" cy="32" r="1" fill="#38bdf8"/>
+          <!-- Glasses -->
+          <rect x="29" y="29" width="10" height="8" rx="2" stroke="#0ea5e9" stroke-width="1.2" fill="none" opacity=".8"/>
+          <rect x="41" y="29" width="10" height="8" rx="2" stroke="#0ea5e9" stroke-width="1.2" fill="none" opacity=".8"/>
+          <line x1="39" y1="33" x2="41" y2="33" stroke="#0ea5e9" stroke-width="1.2" opacity=".8"/>
+          <line x1="28" y1="33" x2="26" y2="32" stroke="#0ea5e9" stroke-width="1.2" opacity=".6"/>
+          <line x1="51" y1="33" x2="53" y2="32" stroke="#0ea5e9" stroke-width="1.2" opacity=".6"/>
+          <!-- Mouth - slight smile -->
+          <path d="M36 39 Q40 42 44 39" stroke="#94a3b8" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+          <!-- Left arm holding chart -->
+          <rect x="5" y="54" width="16" height="8" rx="4" fill="#0f172a" stroke="#0ea5e9" stroke-width="1.2"/>
+          <!-- Mini chart in hand -->
+          <polyline points="8,59 10,56 12,58 14,54 16,57" stroke="#0ea5e9" stroke-width="1" fill="none" stroke-linecap="round"/>
+          <!-- Right arm -->
+          <rect x="59" y="54" width="16" height="8" rx="4" fill="#0f172a" stroke="#0ea5e9" stroke-width="1.2"/>
+          <!-- Legs -->
+          <rect x="25" y="76" width="12" height="12" rx="4" fill="#0f172a" stroke="#0ea5e9" stroke-width="1.2"/>
+          <rect x="43" y="76" width="12" height="12" rx="4" fill="#0f172a" stroke="#0ea5e9" stroke-width="1.2"/>
+          <!-- Shoes -->
+          <rect x="23" y="84" width="16" height="6" rx="3" fill="#0ea5e9" opacity=".5"/>
+          <rect x="41" y="84" width="16" height="6" rx="3" fill="#0ea5e9" opacity=".5"/>
+          <!-- Badge on chest -->
+          <rect x="31" y="60" width="18" height="10" rx="2" fill="#0ea5e9" opacity=".15" stroke="#0ea5e9" stroke-width=".8"/>
+          <text x="40" y="68" text-anchor="middle" fill="#38bdf8" font-size="6" font-family="monospace" font-weight="700">CIX</text>
+        </svg>
+        <div style="font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue2)">CIX</div>
+        <div style="font-size:.55rem;color:var(--txt3);text-align:center">Trade Analyst</div>
+      </div>
+
+      <!-- Info -->
+      <div style="flex:1">
+        <div style="font-size:1.1rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px">Hey, ik ben CIX 👋</div>
+        <div style="font-size:.78rem;color:var(--txt2);line-height:1.6;margin-bottom:.9rem">Jouw persoonlijke ICT trading analyst. Ik ken je volledige playbook van A tot Z — je model, variabelen, regels, sessie data, en alles wat je me hebt bijgeleerd. Stel me alles.</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
           <span class="badge badge-blue">CISD Model</span>
           <span class="badge badge-green">Y &gt; M Framework</span>
           <span class="badge badge-gray">CIX1 Protocol</span>
+          <span class="badge" style="background:rgba(167,139,250,.1);color:#a78bfa">Trapped OF Expert</span>
         </div>
       </div>
-      <button class="btn btn-ghost btn-sm" style="margin-left:auto;align-self:flex-start" onclick="clearBuddyChat()">Clear chat</button>
+      <button class="btn btn-ghost btn-sm" style="align-self:flex-start;flex-shrink:0" onclick="clearBuddyChat()">Clear</button>
     </div>
 
-    <!-- Suggested questions -->
-    <div id="buddySuggestions" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem">
-      <button class="btn btn-ghost btn-sm" onclick="askSuggestion(this)" style="font-size:.7rem">What are my dirtiest trades?</button>
-      <button class="btn btn-ghost btn-sm" onclick="askSuggestion(this)" style="font-size:.7rem">Explain OE Type 1 vs Type 2</button>
-      <button class="btn btn-ghost btn-sm" onclick="askSuggestion(this)" style="font-size:.7rem">When should I apply CIX1?</button>
-      <button class="btn btn-ghost btn-sm" onclick="askSuggestion(this)" style="font-size:.7rem">How do I identify Trapped OF?</button>
-      <button class="btn btn-ghost btn-sm" onclick="askSuggestion(this)" style="font-size:.7rem">Review my best session</button>
+    <!-- Quick questions -->
+    <div style="margin-bottom:.9rem">
+      <div style="font-size:.6rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:.5rem">Quick questions</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="askSuggestion(this)" style="font-size:.7rem">Wat zijn mijn slechtste trades?</button>
+        <button class="btn btn-ghost btn-sm" onclick="askSuggestion(this)" style="font-size:.7rem">Leg OE Type 1 vs 2 uit</button>
+        <button class="btn btn-ghost btn-sm" onclick="askSuggestion(this)" style="font-size:.7rem">Wanneer gebruik ik CIX1?</button>
+        <button class="btn btn-ghost btn-sm" onclick="askSuggestion(this)" style="font-size:.7rem">Hoe herken ik Trapped OF?</button>
+        <button class="btn btn-ghost btn-sm" onclick="askSuggestion(this)" style="font-size:.7rem">Review mijn beste sessie</button>
+        <button class="btn btn-ghost btn-sm" onclick="askSuggestion(this)" style="font-size:.7rem">Wat is de Daily Bias methode?</button>
+      </div>
     </div>
 
-    <div id="buddyChat" class="buddy-chat" style="min-height:120px;max-height:460px;overflow-y:auto;margin-bottom:10px;padding:0"></div>
-
-    <div class="buddy-input-row">
-      <textarea class="buddy-input" id="buddyInput" rows="2" placeholder="Ask CIX anything about your trading, setups, rules, analysis..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendBuddy()}"></textarea>
-      <button class="btn btn-primary" onclick="sendBuddy()" style="align-self:flex-end;padding:9px 18px">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-      </button>
+    <!-- Chat -->
+    <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:1rem">
+      <div id="buddyChat" class="buddy-chat" style="min-height:100px;max-height:400px;overflow-y:auto;margin-bottom:.9rem"></div>
+      <div style="border-top:1px solid var(--border2);padding-top:.9rem">
+        <div class="buddy-input-row" style="margin-top:0">
+          <textarea class="buddy-input" id="buddyInput" rows="2" placeholder="Stel CIX een vraag over je trading, setups, regels, analyse..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendBuddy()}"></textarea>
+          <button class="btn btn-primary" onclick="sendBuddy()" style="align-self:flex-end;padding:9px 16px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+        <div style="font-size:.6rem;color:var(--txt4);margin-top:6px">CIX werkt via de Anthropic API · Vereist hosting op cixtra.vercel.app · Lokaal (file://) werkt niet</div>
+      </div>
     </div>
-    <div style="font-size:.62rem;color:var(--txt4);margin-top:6px;text-align:center">CIX works via the Anthropic API · Must be hosted on cixtra.vercel.app to function · Local file:// will not work</div>
+
   </div>
 </div>
 
@@ -792,15 +852,29 @@ function toast(msg,type='ok'){const el=document.getElementById('toast');el.textC
 
 // ── CONFIRM ──────────────────────────────────────────────────────────────────
 let confirmCb=null;
-function showConfirm(title,msg,cb){document.getElementById('confirmTitle').textContent=title;document.getElementById('confirmMsg').textContent=msg;confirmCb=cb;document.getElementById('confirmOverlay').classList.add('open')}
-document.getElementById('confirmOkBtn').onclick=()=>{confirmCb&&confirmCb();cancelConfirm()};
+function showConfirm(title,msg,cb,requireType=false){
+  document.getElementById('confirmTitle').textContent=title;
+  document.getElementById('confirmMsg').innerHTML=msg+(requireType?'<br><br><input id="confirmInput" placeholder="Type RESET" style="width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:7px 10px;color:var(--txt);font-family:DM Sans,sans-serif;font-size:.82rem;outline:none;margin-top:4px">':'');
+  confirmCb=()=>{
+    if(requireType){const v=document.getElementById('confirmInput')?.value?.trim();if(v!=='RESET'){toast('Type RESET to confirm','err');return false}}
+    cb();return true;
+  };
+  document.getElementById('confirmOverlay').classList.add('open');
+  if(requireType)setTimeout(()=>document.getElementById('confirmInput')?.focus(),100);
+}
+document.getElementById('confirmOkBtn').onclick=()=>{if(confirmCb&&confirmCb()!==false)cancelConfirm()};
 function cancelConfirm(){document.getElementById('confirmOverlay').classList.remove('open');confirmCb=null}
 function confirmReset(){
-  showConfirm('Reset ALL Data','This will permanently delete every trade, rule, bias entry and prop challenge. Are you absolutely sure?',()=>{
-    showConfirm('Final confirmation','ALL data gone forever. No undo.',()=>{
-      [KEY,RKEY,BKEY,PKEY].forEach(k=>localStorage.removeItem(k));toast('All data cleared','err');buildDashboard();buildVariables();renderLog();
-    });
-  });
+  showConfirm(
+    '⚠️ Reset ALL Data',
+    'This permanently deletes every trade, rule, bias entry and prop challenge. Type "RESET" to confirm.',
+    ()=>{
+      [KEY,RKEY,BKEY,PKEY].forEach(k=>localStorage.removeItem(k));
+      toast('All data cleared','err');
+      setTimeout(()=>{buildDashboard();buildVariables();renderLog()},100);
+    },
+    true
+  );
 }
 
 // ── NAVIGATION ──────────────────────────────────────────────────────────────
