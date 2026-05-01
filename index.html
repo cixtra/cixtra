@@ -417,7 +417,10 @@ main{margin-left:var(--sidebar);min-height:100vh;padding:1.75rem 2rem}
         <button class="tab-btn active" onclick="switchTradeTab(event,'trades')">Trades</button>
         <button class="tab-btn" onclick="switchTradeTab(event,'bias-tab')">Daily Bias</button>
       </div>
-      <button class="btn btn-ghost btn-sm" id="exportBtn" onclick="exportCSV()">Export</button>
+      <button class="btn btn-ghost btn-sm" onclick="openBackupModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Backup / Restore
+      </button>
       <button class="btn btn-primary" onclick="nav(null,'add')">+ Add Trade</button>
     </div>
   </div>
@@ -763,6 +766,53 @@ main{margin-left:var(--sidebar);min-height:100vh;padding:1.75rem 2rem}
     <button class="btn btn-primary" onclick="openAddPropModal()">+ Add Challenge</button>
   </div>
   <div style="max-width:900px" id="propList"></div>
+</div>
+
+<!-- BACKUP MODAL -->
+<div class="overlay" id="backupModal" onclick="closeBackupModal(event)">
+  <div class="modal" style="max-width:500px">
+    <button class="modal-close" onclick="closeBackupModalDirect()">&#x2715;</button>
+    <div class="modal-title">Backup & Restore</div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <!-- Export full backup -->
+      <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:1.1rem">
+        <div style="font-size:.72rem;font-weight:700;color:var(--txt);margin-bottom:3px">📦 Export Full Backup</div>
+        <div style="font-size:.74rem;color:var(--txt3);margin-bottom:.75rem;line-height:1.5">Exporteert alle trades, bias entries, prop challenges en regels als één JSON bestand. Sla dit regelmatig op als backup.</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary btn-sm" onclick="exportFullBackup()">Download Backup (.json)</button>
+          <button class="btn btn-ghost btn-sm" onclick="exportCSVTrades()">Export Trades (.csv)</button>
+        </div>
+      </div>
+
+      <!-- Import backup -->
+      <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:1.1rem">
+        <div style="font-size:.72rem;font-weight:700;color:var(--txt);margin-bottom:3px">📥 Restore from Backup</div>
+        <div style="font-size:.74rem;color:var(--txt3);margin-bottom:.75rem;line-height:1.5">Zet een eerder gedownloade backup terug. Kies of je de huidige data wil samenvoegen of volledig vervangen.</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <label class="btn btn-ghost btn-sm" style="cursor:pointer">
+            Kies backup bestand
+            <input type="file" accept=".json" style="display:none" onchange="handleRestoreFile(this)">
+          </label>
+        </div>
+        <div id="restorePreview" style="margin-top:.75rem;display:none">
+          <div style="background:var(--bg4);border-radius:7px;padding:.75rem;font-size:.76rem;color:var(--txt2)" id="restoreInfo"></div>
+          <div style="display:flex;gap:8px;margin-top:.65rem">
+            <button class="btn btn-primary btn-sm" onclick="doRestore('replace')">Vervang alles</button>
+            <button class="btn btn-ghost btn-sm" onclick="doRestore('merge')">Samenvoegen</button>
+            <button class="btn btn-ghost btn-sm" onclick="cancelRestore()">Annuleer</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Backup reminder -->
+      <div style="background:rgba(14,165,233,.06);border:1px solid rgba(14,165,233,.15);border-radius:10px;padding:.9rem">
+        <div style="font-size:.7rem;font-weight:600;color:var(--blue2);margin-bottom:3px">💡 Tip</div>
+        <div style="font-size:.72rem;color:var(--txt3);line-height:1.5">Download wekelijks een backup. Sla hem op in Google Drive, iCloud of een andere veilige plek. Zo verlies je nooit data als je ooit van browser wisselt of cache wist.</div>
+        <div style="font-size:.68rem;color:var(--txt4);margin-top:5px">Laatste backup: <span id="lastBackupDate">Nog geen backup gemaakt</span></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 </main>
@@ -1115,15 +1165,6 @@ function renderLog(){
   for(let i=Math.max(1,cPage-2);i<=Math.min(pages,cPage+2);i++)pg+=`<button class="pgb ${i===cPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
   if(cPage<pages)pg+=`<button class="pgb" onclick="goPage(${cPage+1})">&#8594;</button>`;
   document.getElementById('pgEl').innerHTML=pg;
-}
-
-function exportCSV(){
-  const d=load();if(!d.length){toast('No trades to export','err');return}
-  const headers=['id','date','sess','sym','pos','r','maxR','grade','res','poi','tof','con','oe','of','smt','cix1','notes'];
-  const rows=d.map(t=>headers.map(h=>{const v=t[h]??'';return`"${String(v).replace(/"/g,'""')}"`}).join(','));
-  const blob=new Blob([headers.join(',')+'\n'+rows.join('\n')],{type:'text/csv'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='cixtra_trades.csv';a.click();
-  toast('Exported','ok');
 }
 
 // ── TRADE MODAL ──────────────────────────────────────────────────────────────
@@ -1799,6 +1840,140 @@ function updateClock(){
   if(el2)el2.textContent=`${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]}`;
 }
 updateClock();setInterval(updateClock,1000);
+
+// ── BACKUP & RESTORE ─────────────────────────────────────────────────────────
+let restorePendingData=null;
+
+function openBackupModal(){
+  // Update last backup date display
+  const last=localStorage.getItem('cx_last_backup');
+  document.getElementById('lastBackupDate').textContent=last?new Date(last).toLocaleString('nl-BE'):'Nog geen backup gemaakt';
+  document.getElementById('restorePreview').style.display='none';
+  restorePendingData=null;
+  document.getElementById('backupModal').classList.add('open');
+}
+function closeBackupModal(e){if(e.target===document.getElementById('backupModal'))closeBackupModalDirect()}
+function closeBackupModalDirect(){document.getElementById('backupModal').classList.remove('open')}
+
+function exportFullBackup(){
+  const backup={
+    version:2,
+    exportedAt:new Date().toISOString(),
+    trades:load(),
+    bias:loadB(),
+    prop:loadP(),
+    rules:loadR()
+  };
+  const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  const date=new Date().toISOString().split('T')[0];
+  a.download=`cixtra_backup_${date}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  localStorage.setItem('cx_last_backup',new Date().toISOString());
+  document.getElementById('lastBackupDate').textContent=new Date().toLocaleString('nl-BE');
+  toast('Backup gedownload ✓','ok');
+}
+
+function exportCSVTrades(){
+  const d=load();
+  if(!d.length){toast('Geen trades om te exporteren','err');return}
+  const headers=['id','date','sess','sym','pos','r','maxR','grade','res','poi','tof','con','oe','of','smt','cix1','notes'];
+  const rows=d.map(t=>headers.map(h=>{const v=t[h]??'';return`"${String(v).replace(/"/g,'""')}"`}).join(','));
+  const blob=new Blob([headers.join(',')+'\n'+rows.join('\n')],{type:'text/csv'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`cixtra_trades_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('CSV geëxporteerd ✓','ok');
+}
+
+function handleRestoreFile(input){
+  const file=input.files[0];
+  if(!file){return}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      // Validate it looks like a CIXTRA backup
+      if(typeof data!=='object'||(!data.trades&&!data.version)){
+        toast('Ongeldig backup bestand','err');return;
+      }
+      restorePendingData=data;
+      // Show preview
+      const trades=data.trades||[];
+      const bias=data.bias||[];
+      const prop=data.prop||[];
+      const rules=data.rules||[];
+      const exportDate=data.exportedAt?new Date(data.exportedAt).toLocaleString('nl-BE'):'Onbekend';
+      document.getElementById('restoreInfo').innerHTML=`
+        <div style="font-weight:600;color:var(--txt);margin-bottom:6px">📋 Backup inhoud</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+          <div>🗓 Geëxporteerd: <strong>${exportDate}</strong></div>
+          <div>📈 Trades: <strong>${trades.length}</strong></div>
+          <div>📝 Bias entries: <strong>${bias.length}</strong></div>
+          <div>🏢 Prop challenges: <strong>${prop.length}</strong></div>
+          <div>📋 Rules: <strong>${rules.length}</strong></div>
+        </div>
+        <div style="margin-top:8px;padding:6px 8px;background:rgba(245,158,11,.08);border-radius:5px;font-size:.7rem;color:var(--orange)">
+          ⚠️ <strong>Vervang alles</strong> overschrijft al je huidige data. <strong>Samenvoegen</strong> voegt enkel nieuwe trades toe die nog niet bestaan.
+        </div>`;
+      document.getElementById('restorePreview').style.display='block';
+    }catch(err){
+      toast('Kan bestand niet lezen — is het een geldig CIXTRA backup?','err');
+      restorePendingData=null;
+    }
+  };
+  reader.readAsText(file);
+  // Reset input so same file can be selected again
+  input.value='';
+}
+
+function doRestore(mode){
+  if(!restorePendingData){toast('Geen backup geselecteerd','err');return}
+  const data=restorePendingData;
+  if(mode==='replace'){
+    showConfirm(
+      'Alles vervangen?',
+      'Dit overschrijft al je huidige trades, bias en prop data. Rules blijven bewaard. Weet je het zeker?',
+      ()=>{
+        save(data.trades||[]);
+        saveB(data.bias||[]);
+        saveP(data.prop||[]);
+        // Only restore rules if backup has them and user confirms
+        if(data.rules&&data.rules.length>0)saveR(data.rules);
+        toast(`Restore geslaagd — ${(data.trades||[]).length} trades teruggezet ✓`,'ok');
+        closeBackupModalDirect();
+        buildDashboard();buildVariables();renderLog();buildRules();
+        restorePendingData=null;
+      }
+    );
+  } else {
+    // Merge — only add trades that don't already exist (by date+sym+r combo)
+    const existing=load();
+    const existingKeys=new Set(existing.map(t=>`${t.date}_${t.sym}_${t.r}`));
+    const newTrades=(data.trades||[]).filter(t=>`${t.date}_${t.sym}_${t.r}` && !existingKeys.has(`${t.date}_${t.sym}_${t.r}`));
+    // Renumber IDs
+    let maxId=existing.length?Math.max(...existing.map(t=>t.id||0)):0;
+    newTrades.forEach(t=>{maxId++;t.id=maxId});
+    save([...existing,...newTrades]);
+    // Merge bias (by date)
+    const existingBias=loadB();const existingBiasDates=new Set(existingBias.map(b=>b.date));
+    const newBias=(data.bias||[]).filter(b=>!existingBiasDates.has(b.date));
+    saveB([...existingBias,...newBias]);
+    toast(`${newTrades.length} nieuwe trades en ${newBias.length} bias entries toegevoegd ✓`,'ok');
+    closeBackupModalDirect();
+    buildDashboard();buildVariables();renderLog();
+    restorePendingData=null;
+  }
+}
+
+function cancelRestore(){
+  restorePendingData=null;
+  document.getElementById('restorePreview').style.display='none';
+}
 
 // ── INIT ────────────────────────────────────────────────────────────────────
 buildDashboard();buildRules();
