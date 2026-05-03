@@ -883,7 +883,21 @@ main{margin-left:var(--sidebar);min-height:100vh;padding:1.75rem 2rem}
 const KEY='cx_trades',RKEY='cx_rules',BKEY='cx_bias',PKEY='cx_prop';
 const load=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch{return[]}};
 const save=d=>localStorage.setItem(KEY,JSON.stringify(d));
-const loadR=()=>{try{return JSON.parse(localStorage.getItem(RKEY)||'null')||defaultRules()}catch{return defaultRules()}};
+const loadR=()=>{
+  try{
+    const stored=localStorage.getItem(RKEY);
+    if(stored){
+      const parsed=JSON.parse(stored);
+      if(Array.isArray(parsed)&&parsed.length>0)return parsed;
+    }
+    // Only use defaults if nothing stored yet — save them immediately so future code updates don't reset
+    const defaults=defaultRules();
+    localStorage.setItem(RKEY,JSON.stringify(defaults));
+    return defaults;
+  }catch{
+    return defaultRules();
+  }
+};
 const saveR=d=>localStorage.setItem(RKEY,JSON.stringify(d));
 const loadB=()=>{try{return JSON.parse(localStorage.getItem(BKEY)||'[]')}catch{return[]}};
 const saveB=d=>localStorage.setItem(BKEY,JSON.stringify(d));
@@ -1626,10 +1640,6 @@ function buildRules(){
       <div class="rule-title">${r.title}</div>
       <div class="rule-desc">${r.desc}</div>
       <div class="rule-list">${(r.bullets||[]).map(b=>`<div class="rule-li">${b}</div>`).join('')}</div>
-      <div class="rule-actions">
-        <button class="btn btn-ghost btn-sm" onclick="openEditRule(${r.id})">Edit</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteRule(${r.id})">Delete</button>
-      </div>
     </div>`).join('');
 }
 let editRuleId=null;
