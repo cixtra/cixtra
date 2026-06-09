@@ -362,7 +362,7 @@ main{margin-left:var(--sidebar);min-height:100vh;padding:1.75rem 2rem}
   <div class="kpi-grid" id="kpiGrid"></div>
   <div class="charts-2">
     <div class="card">
-      <div class="card-title" id="equityTitle">Equity Curve — Cumulative R</div>
+      <div class="card-title">Equity Curve — Cumulative R</div>
       <div class="chart-wrap" style="height:160px"><canvas id="equityChart"></canvas></div>
     </div>
     <div class="card">
@@ -371,14 +371,12 @@ main{margin-left:var(--sidebar);min-height:100vh;padding:1.75rem 2rem}
     </div>
   </div>
   <div class="charts-3">
-    <div class="card" id="monthChartCard"><div class="card-title" id="monthChartTitle">Monthly R</div><div class="chart-wrap" style="height:120px"><canvas id="monthChart"></canvas></div></div>
+    <div class="card"><div class="card-title">Monthly R</div><div class="chart-wrap" style="height:120px"><canvas id="monthChart"></canvas></div></div>
     <div class="card"><div class="card-title">Win / Loss / B/E</div><div class="chart-wrap" style="height:120px"><canvas id="donutChart"></canvas></div></div>
     <div class="card"><div class="card-title">Setup Grade</div><div class="chart-wrap" style="height:120px"><canvas id="gradeChart"></canvas></div></div>
   </div>
-  <div id="monthBreakdownSection">
-    <div class="sec" id="monthBreakdownTitle">Monthly Breakdown</div>
-    <div class="tbl-wrap"><table class="month-tbl" id="monthTable"></table></div>
-  </div>
+  <div class="sec">Monthly Breakdown</div>
+  <div class="tbl-wrap"><table class="month-tbl" id="monthTable"></table></div>
 </div>
 
 <!-- ANALYTICS -->
@@ -419,11 +417,8 @@ main{margin-left:var(--sidebar);min-height:100vh;padding:1.75rem 2rem}
         <button class="tab-btn active" onclick="switchTradeTab(event,'trades')">Trades</button>
         <button class="tab-btn" onclick="switchTradeTab(event,'bias-tab')">Daily Bias</button>
       </div>
-      <button class="btn btn-ghost btn-sm" onclick="openBackupModal()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Backup / Restore
-      </button>
-      <button class="btn btn-primary" onclick="nav(null,'add')">+ Add Trade</button>
+      <button class="btn btn-ghost btn-sm" id="exportBtn" onclick="exportCSV()">Export</button>
+      <button class="btn btn-primary" onclick="(()=>{document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('page-add').classList.add('active');document.querySelectorAll('.nav-item').forEach(n=>{if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes("'add'"))n.classList.add('active')});resetForm()})()">+ Add Trade</button>
     </div>
   </div>
   <div id="trades-panel">
@@ -458,7 +453,7 @@ main{margin-left:var(--sidebar);min-height:100vh;padding:1.75rem 2rem}
   <div id="bias-tab-panel" style="display:none">
     <div class="page-header" style="margin-top:.5rem;margin-bottom:1rem">
       <div><div class="page-sub">Your daily market analysis entries</div></div>
-      <button class="btn btn-primary" onclick="nav(null,'bias')">+ Log Daily Bias</button>
+      <button class="btn btn-primary" onclick="nav(event,'bias')">+ Log Daily Bias</button>
     </div>
     <div id="biasList2"></div>
   </div>
@@ -513,7 +508,7 @@ main{margin-left:var(--sidebar);min-height:100vh;padding:1.75rem 2rem}
               <select id="f-smt"><option value="">—</option><option value="Y">Yes</option><option value="N">No</option></select>
             </div>
             <div class="field"><label>CIX1</label>
-              <select id="f-cix1"><option value="">—</option><option value="NA">Not Applicable</option><option value="Y">Yes (Applied)</option><option value="N">No (BAD — ignored rule)</option></select>
+              <select id="f-cix1"><option value="">—</option><option value="Y">Yes (Applied)</option><option value="N">No (BAD — ignored rule)</option></select>
             </div>
           </div>
         </div>
@@ -665,99 +660,39 @@ main{margin-left:var(--sidebar);min-height:100vh;padding:1.75rem 2rem}
 <!-- TRADE BUDDY -->
 <div id="page-buddy" class="page">
   <div style="max-width:780px">
-
-    <!-- Character + Header Card -->
-    <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:1.5rem;margin-bottom:1rem;display:flex;gap:1.5rem;align-items:flex-start;position:relative;overflow:hidden">
-      <!-- Glow behind character -->
-      <div style="position:absolute;top:-20px;left:60px;width:120px;height:120px;background:radial-gradient(circle,rgba(14,165,233,.18) 0%,transparent 70%);pointer-events:none"></div>
-
-      <!-- SVG Character — CIX the analyst -->
-      <div style="flex-shrink:0;width:90px;display:flex;flex-direction:column;align-items:center;gap:6px">
-        <svg width="80" height="90" viewBox="0 0 80 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Body -->
-          <rect x="20" y="48" width="40" height="32" rx="8" fill="#0f172a" stroke="#0ea5e9" stroke-width="1.5"/>
-          <!-- Shirt detail -->
-          <rect x="27" y="52" width="26" height="3" rx="1.5" fill="#0ea5e9" opacity=".4"/>
-          <!-- Tie -->
-          <polygon points="40,55 37,68 40,71 43,68" fill="#0ea5e9" opacity=".7"/>
-          <!-- Head -->
-          <circle cx="40" cy="34" r="16" fill="#1e293b" stroke="#0ea5e9" stroke-width="1.5"/>
-          <!-- Hair -->
-          <path d="M25 30 Q27 20 40 22 Q53 20 55 30" fill="#0ea5e9" opacity=".5"/>
-          <!-- Eyes -->
-          <circle cx="34" cy="33" r="3" fill="#0f172a"/>
-          <circle cx="46" cy="33" r="3" fill="#0f172a"/>
-          <circle cx="35" cy="32" r="1" fill="#38bdf8"/>
-          <circle cx="47" cy="32" r="1" fill="#38bdf8"/>
-          <!-- Glasses -->
-          <rect x="29" y="29" width="10" height="8" rx="2" stroke="#0ea5e9" stroke-width="1.2" fill="none" opacity=".8"/>
-          <rect x="41" y="29" width="10" height="8" rx="2" stroke="#0ea5e9" stroke-width="1.2" fill="none" opacity=".8"/>
-          <line x1="39" y1="33" x2="41" y2="33" stroke="#0ea5e9" stroke-width="1.2" opacity=".8"/>
-          <line x1="28" y1="33" x2="26" y2="32" stroke="#0ea5e9" stroke-width="1.2" opacity=".6"/>
-          <line x1="51" y1="33" x2="53" y2="32" stroke="#0ea5e9" stroke-width="1.2" opacity=".6"/>
-          <!-- Mouth - slight smile -->
-          <path d="M36 39 Q40 42 44 39" stroke="#94a3b8" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-          <!-- Left arm holding chart -->
-          <rect x="5" y="54" width="16" height="8" rx="4" fill="#0f172a" stroke="#0ea5e9" stroke-width="1.2"/>
-          <!-- Mini chart in hand -->
-          <polyline points="8,59 10,56 12,58 14,54 16,57" stroke="#0ea5e9" stroke-width="1" fill="none" stroke-linecap="round"/>
-          <!-- Right arm -->
-          <rect x="59" y="54" width="16" height="8" rx="4" fill="#0f172a" stroke="#0ea5e9" stroke-width="1.2"/>
-          <!-- Legs -->
-          <rect x="25" y="76" width="12" height="12" rx="4" fill="#0f172a" stroke="#0ea5e9" stroke-width="1.2"/>
-          <rect x="43" y="76" width="12" height="12" rx="4" fill="#0f172a" stroke="#0ea5e9" stroke-width="1.2"/>
-          <!-- Shoes -->
-          <rect x="23" y="84" width="16" height="6" rx="3" fill="#0ea5e9" opacity=".5"/>
-          <rect x="41" y="84" width="16" height="6" rx="3" fill="#0ea5e9" opacity=".5"/>
-          <!-- Badge on chest -->
-          <rect x="31" y="60" width="18" height="10" rx="2" fill="#0ea5e9" opacity=".15" stroke="#0ea5e9" stroke-width=".8"/>
-          <text x="40" y="68" text-anchor="middle" fill="#38bdf8" font-size="6" font-family="monospace" font-weight="700">CIX</text>
-        </svg>
-        <div style="font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue2)">CIX</div>
-        <div style="font-size:.55rem;color:var(--txt3);text-align:center">Trade Analyst</div>
-      </div>
-
-      <!-- Info -->
-      <div style="flex:1">
-        <div style="font-size:1.1rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px">Hey, ik ben CIX 👋</div>
-        <div style="font-size:.78rem;color:var(--txt2);line-height:1.6;margin-bottom:.9rem">Jouw persoonlijke ICT trading analyst. Ik ken je volledige playbook van A tot Z — je model, variabelen, regels, sessie data, en alles wat je me hebt bijgeleerd. Stel me alles.</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap">
+    <!-- Header with character -->
+    <div style="display:flex;align-items:center;gap:1.25rem;margin-bottom:1.25rem;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:1.25rem">
+      <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--blue4),rgba(14,165,233,.3));border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.5rem">🎯</div>
+      <div>
+        <div style="font-weight:700;font-size:1rem;letter-spacing:-0.01em">CIX — Trade Buddy</div>
+        <div style="font-size:.74rem;color:var(--txt3);margin-top:2px">ICT model specialist · Trained on your full playbook, rules, variables and data</div>
+        <div style="display:flex;gap:6px;margin-top:6px">
           <span class="badge badge-blue">CISD Model</span>
           <span class="badge badge-green">Y &gt; M Framework</span>
           <span class="badge badge-gray">CIX1 Protocol</span>
-          <span class="badge" style="background:rgba(167,139,250,.1);color:#a78bfa">Trapped OF Expert</span>
         </div>
       </div>
-      <button class="btn btn-ghost btn-sm" style="align-self:flex-start;flex-shrink:0" onclick="clearBuddyChat()">Clear</button>
+      <button class="btn btn-ghost btn-sm" style="margin-left:auto;align-self:flex-start" onclick="clearBuddyChat()">Clear chat</button>
     </div>
 
-    <!-- Quick questions -->
-    <div style="margin-bottom:.9rem">
-      <div style="font-size:.6rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3);margin-bottom:.5rem">Quick questions</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button class="btn btn-ghost btn-sm" onclick="askSuggestion(this)" style="font-size:.7rem">Wat zijn mijn slechtste trades?</button>
-        <button class="btn btn-ghost btn-sm" onclick="askSuggestion(this)" style="font-size:.7rem">Leg OE Type 1 vs 2 uit</button>
-        <button class="btn btn-ghost btn-sm" onclick="askSuggestion(this)" style="font-size:.7rem">Wanneer gebruik ik CIX1?</button>
-        <button class="btn btn-ghost btn-sm" onclick="askSuggestion(this)" style="font-size:.7rem">Hoe herken ik Trapped OF?</button>
-        <button class="btn btn-ghost btn-sm" onclick="askSuggestion(this)" style="font-size:.7rem">Review mijn beste sessie</button>
-        <button class="btn btn-ghost btn-sm" onclick="askSuggestion(this)" style="font-size:.7rem">Wat is de Daily Bias methode?</button>
-      </div>
+    <!-- Suggested questions -->
+    <div id="buddySuggestions" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem">
+      <button class="btn btn-ghost btn-sm" onclick="askSuggestion(this)" style="font-size:.7rem">What are my dirtiest trades?</button>
+      <button class="btn btn-ghost btn-sm" onclick="askSuggestion(this)" style="font-size:.7rem">Explain OE Type 1 vs Type 2</button>
+      <button class="btn btn-ghost btn-sm" onclick="askSuggestion(this)" style="font-size:.7rem">When should I apply CIX1?</button>
+      <button class="btn btn-ghost btn-sm" onclick="askSuggestion(this)" style="font-size:.7rem">How do I identify Trapped OF?</button>
+      <button class="btn btn-ghost btn-sm" onclick="askSuggestion(this)" style="font-size:.7rem">Review my best session</button>
     </div>
 
-    <!-- Chat -->
-    <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:1rem">
-      <div id="buddyChat" class="buddy-chat" style="min-height:100px;max-height:400px;overflow-y:auto;margin-bottom:.9rem"></div>
-      <div style="border-top:1px solid var(--border2);padding-top:.9rem">
-        <div class="buddy-input-row" style="margin-top:0">
-          <textarea class="buddy-input" id="buddyInput" rows="2" placeholder="Stel CIX een vraag over je trading, setups, regels, analyse..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendBuddy()}"></textarea>
-          <button class="btn btn-primary" onclick="sendBuddy()" style="align-self:flex-end;padding:9px 16px">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          </button>
-        </div>
-        <div style="font-size:.6rem;color:var(--txt4);margin-top:6px">CIX werkt via de Anthropic API · Vereist hosting op cixtra.vercel.app · Lokaal (file://) werkt niet</div>
-      </div>
-    </div>
+    <div id="buddyChat" class="buddy-chat" style="min-height:120px;max-height:460px;overflow-y:auto;margin-bottom:10px;padding:0"></div>
 
+    <div class="buddy-input-row">
+      <textarea class="buddy-input" id="buddyInput" rows="2" placeholder="Ask CIX anything about your trading, setups, rules, analysis..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendBuddy()}"></textarea>
+      <button class="btn btn-primary" onclick="sendBuddy()" style="align-self:flex-end;padding:9px 18px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+    <div style="font-size:.62rem;color:var(--txt4);margin-top:6px;text-align:center">CIX works via the Anthropic API · Must be hosted on cixtra.vercel.app to function · Local file:// will not work</div>
   </div>
 </div>
 
@@ -768,53 +703,6 @@ main{margin-left:var(--sidebar);min-height:100vh;padding:1.75rem 2rem}
     <button class="btn btn-primary" onclick="openAddPropModal()">+ Add Challenge</button>
   </div>
   <div style="max-width:900px" id="propList"></div>
-</div>
-
-<!-- BACKUP MODAL -->
-<div class="overlay" id="backupModal" onclick="closeBackupModal(event)">
-  <div class="modal" style="max-width:500px">
-    <button class="modal-close" onclick="closeBackupModalDirect()">&#x2715;</button>
-    <div class="modal-title">Backup & Restore</div>
-
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <!-- Export full backup -->
-      <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:1.1rem">
-        <div style="font-size:.72rem;font-weight:700;color:var(--txt);margin-bottom:3px">📦 Export Full Backup</div>
-        <div style="font-size:.74rem;color:var(--txt3);margin-bottom:.75rem;line-height:1.5">Exporteert alle trades, bias entries, prop challenges en regels als één JSON bestand. Sla dit regelmatig op als backup.</div>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-primary btn-sm" onclick="exportFullBackup()">Download Backup (.json)</button>
-          <button class="btn btn-ghost btn-sm" onclick="exportCSVTrades()">Export Trades (.csv)</button>
-        </div>
-      </div>
-
-      <!-- Import backup -->
-      <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:1.1rem">
-        <div style="font-size:.72rem;font-weight:700;color:var(--txt);margin-bottom:3px">📥 Restore from Backup</div>
-        <div style="font-size:.74rem;color:var(--txt3);margin-bottom:.75rem;line-height:1.5">Zet een eerder gedownloade backup terug. Kies of je de huidige data wil samenvoegen of volledig vervangen.</div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <label class="btn btn-ghost btn-sm" style="cursor:pointer">
-            Kies backup bestand
-            <input type="file" accept=".json" style="display:none" onchange="handleRestoreFile(this)">
-          </label>
-        </div>
-        <div id="restorePreview" style="margin-top:.75rem;display:none">
-          <div style="background:var(--bg4);border-radius:7px;padding:.75rem;font-size:.76rem;color:var(--txt2)" id="restoreInfo"></div>
-          <div style="display:flex;gap:8px;margin-top:.65rem">
-            <button class="btn btn-primary btn-sm" onclick="doRestore('replace')">Vervang alles</button>
-            <button class="btn btn-ghost btn-sm" onclick="doRestore('merge')">Samenvoegen</button>
-            <button class="btn btn-ghost btn-sm" onclick="cancelRestore()">Annuleer</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Backup reminder -->
-      <div style="background:rgba(14,165,233,.06);border:1px solid rgba(14,165,233,.15);border-radius:10px;padding:.9rem">
-        <div style="font-size:.7rem;font-weight:600;color:var(--blue2);margin-bottom:3px">💡 Tip</div>
-        <div style="font-size:.72rem;color:var(--txt3);line-height:1.5">Download wekelijks een backup. Sla hem op in Google Drive, iCloud of een andere veilige plek. Zo verlies je nooit data als je ooit van browser wisselt of cache wist.</div>
-        <div style="font-size:.68rem;color:var(--txt4);margin-top:5px">Laatste backup: <span id="lastBackupDate">Nog geen backup gemaakt</span></div>
-      </div>
-    </div>
-  </div>
 </div>
 
 </main>
@@ -883,21 +771,7 @@ main{margin-left:var(--sidebar);min-height:100vh;padding:1.75rem 2rem}
 const KEY='cx_trades',RKEY='cx_rules',BKEY='cx_bias',PKEY='cx_prop';
 const load=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch{return[]}};
 const save=d=>localStorage.setItem(KEY,JSON.stringify(d));
-const loadR=()=>{
-  try{
-    const stored=localStorage.getItem(RKEY);
-    if(stored){
-      const parsed=JSON.parse(stored);
-      if(Array.isArray(parsed)&&parsed.length>0)return parsed;
-    }
-    // Only use defaults if nothing stored yet — save them immediately so future code updates don't reset
-    const defaults=defaultRules();
-    localStorage.setItem(RKEY,JSON.stringify(defaults));
-    return defaults;
-  }catch{
-    return defaultRules();
-  }
-};
+const loadR=()=>{try{return JSON.parse(localStorage.getItem(RKEY)||'null')||defaultRules()}catch{return defaultRules()}};
 const saveR=d=>localStorage.setItem(RKEY,JSON.stringify(d));
 const loadB=()=>{try{return JSON.parse(localStorage.getItem(BKEY)||'[]')}catch{return[]}};
 const saveB=d=>localStorage.setItem(BKEY,JSON.stringify(d));
@@ -918,29 +792,15 @@ function toast(msg,type='ok'){const el=document.getElementById('toast');el.textC
 
 // ── CONFIRM ──────────────────────────────────────────────────────────────────
 let confirmCb=null;
-function showConfirm(title,msg,cb,requireType=false){
-  document.getElementById('confirmTitle').textContent=title;
-  document.getElementById('confirmMsg').innerHTML=msg+(requireType?'<br><br><input id="confirmInput" placeholder="Type RESET" style="width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:7px 10px;color:var(--txt);font-family:DM Sans,sans-serif;font-size:.82rem;outline:none;margin-top:4px">':'');
-  confirmCb=()=>{
-    if(requireType){const v=document.getElementById('confirmInput')?.value?.trim();if(v!=='RESET'){toast('Type RESET to confirm','err');return false}}
-    cb();return true;
-  };
-  document.getElementById('confirmOverlay').classList.add('open');
-  if(requireType)setTimeout(()=>document.getElementById('confirmInput')?.focus(),100);
-}
-document.getElementById('confirmOkBtn').onclick=()=>{if(confirmCb&&confirmCb()!==false)cancelConfirm()};
+function showConfirm(title,msg,cb){document.getElementById('confirmTitle').textContent=title;document.getElementById('confirmMsg').textContent=msg;confirmCb=cb;document.getElementById('confirmOverlay').classList.add('open')}
+document.getElementById('confirmOkBtn').onclick=()=>{confirmCb&&confirmCb();cancelConfirm()};
 function cancelConfirm(){document.getElementById('confirmOverlay').classList.remove('open');confirmCb=null}
 function confirmReset(){
-  showConfirm(
-    '⚠️ Reset Trade Data',
-    'This permanently deletes all trades, daily bias entries and prop challenges. Your rules and protocols are kept. Type "RESET" to confirm.',
-    ()=>{
-      [KEY,BKEY,PKEY].forEach(k=>localStorage.removeItem(k));
-      toast('Trade data cleared','err');
-      setTimeout(()=>{buildDashboard();buildVariables();renderLog()},100);
-    },
-    true
-  );
+  showConfirm('Reset ALL Data','This will permanently delete every trade, rule, bias entry and prop challenge. Are you absolutely sure?',()=>{
+    showConfirm('Final confirmation','ALL data gone forever. No undo.',()=>{
+      [KEY,RKEY,BKEY,PKEY].forEach(k=>localStorage.removeItem(k));toast('All data cleared','err');buildDashboard();buildVariables();renderLog();
+    });
+  });
 }
 
 // ── NAVIGATION ──────────────────────────────────────────────────────────────
@@ -971,60 +831,20 @@ function getFilteredData(){
 function buildDashboard(){
   const d=getFilteredData();
   const wins=d.filter(t=>t.res==='win').length,losses=d.filter(t=>t.res==='loss').length;
-  const totR=totalR(d);
-  const avgWin=wins?d.filter(t=>t.res==='win').reduce((s,t)=>s+parseFloat(t.r||0),0)/wins:0;
+  const totR=totalR(d),avgWin=wins?d.filter(t=>t.res==='win').reduce((s,t)=>s+parseFloat(t.r||0),0)/wins:0;
   const avgLoss=losses?d.filter(t=>t.res==='loss').reduce((s,t)=>s+parseFloat(t.r||0),0)/losses:0;
-
-  // Context-aware KPI labels
-  const periodLabel=dashFilter==='week'?'This Week':dashFilter==='month'?'This Month':'All Time';
   const kpis=[
-    {l:'Trades',v:d.length.toString(),c:'var(--blue2)'},
+    {l:'Total Trades',v:d.length.toString(),c:'var(--blue2)',sub:''},
     {l:'Total R',v:fmtR(totR,1),c:totR>=0?'var(--green)':'var(--red)',cl:totR>=0?'pos':'neg'},
     {l:'Win Rate',v:d.length?(wr(d)*100).toFixed(1)+'%':'—',c:'var(--blue2)',cl:'blue'},
-    {l:'Profit Factor',v:pf(d)?pf(d).toFixed(2):'—',c:pf(d)>=1?'var(--green)':'var(--red)',cl:pf(d)>=1?'pos':'neg'},
+    {l:'Profit Factor',v:pf(d)?pf(d).toFixed(2):'—',c:'var(--green)',cl:'pos'},
     {l:'Expectancy',v:fmtR(expR(d),2),c:expR(d)>=0?'var(--green)':'var(--red)',cl:expR(d)>=0?'pos':'neg'},
     {l:'Avg Win',v:fmtR(avgWin),c:'var(--green)',cl:'pos'},
     {l:'Avg Loss',v:fmtR(avgLoss),c:'var(--red)',cl:'neg'},
-    {l:'Today',v:load().filter(t=>t.date===new Date().toISOString().split('T')[0]).length.toString(),c:'var(--blue2)',cl:'blue'},
+    {l:'Today',v:d.filter(t=>t.date===new Date().toISOString().split('T')[0]).length.toString(),c:'var(--blue2)',cl:'blue'},
   ];
   document.getElementById('kpiGrid').innerHTML=kpis.map(k=>`<div class="kpi"><div class="kpi-label">${k.l}</div><div class="kpi-val ${k.cl||''}">${k.v}</div></div>`).join('');
-
-  // Equity curve title adapts to filter
-  document.getElementById('equityTitle').textContent=
-    dashFilter==='week'?'Equity Curve — This Week':
-    dashFilter==='month'?'Equity Curve — This Month':
-    'Equity Curve — All Time';
-
-  // Monthly chart + breakdown: only show for All Time (makes no sense for week/month)
-  const showMonthly=dashFilter==='all';
-  document.getElementById('monthChartCard').style.display=showMonthly?'':'none';
-  document.getElementById('monthBreakdownSection').style.display=showMonthly?'':'none';
-
-  // For week/month view, replace the monthly chart slot with a "Period Summary" card
-  if(!showMonthly){
-    // Swap chart title for context
-    const cleanCount=d.filter(isClean).length;
-    const dirtyCount=d.filter(t=>!isClean(t)).length;
-    document.getElementById('monthChartCard').style.display='';
-    document.getElementById('monthChartCard').innerHTML=`
-      <div class="card-title">${periodLabel} — Quick Stats</div>
-      <div style="display:flex;flex-direction:column;gap:8px;padding-top:.25rem">
-        <div style="display:flex;justify-content:space-between;font-size:.78rem"><span style="color:var(--txt2)">Clean trades</span><span class="rp mono">${cleanCount}</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:.78rem"><span style="color:var(--txt2)">Dirty trades</span><span class="rn mono">${dirtyCount}</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:.78rem"><span style="color:var(--txt2)">Wins</span><span class="rp mono">${wins}</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:.78rem"><span style="color:var(--txt2)">Losses</span><span class="rn mono">${losses}</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:.78rem"><span style="color:var(--txt2)">B/E</span><span class="rb mono">${d.length-wins-losses}</span></div>
-      </div>`;
-  } else {
-    // Restore monthly chart card if switching back to All Time
-    if(!document.getElementById('monthChart')){
-      document.getElementById('monthChartCard').innerHTML=`<div class="card-title" id="monthChartTitle">Monthly R</div><div class="chart-wrap" style="height:120px"><canvas id="monthChart"></canvas></div>`;
-    }
-    buildMonthChart(d);
-    buildMonthTable(d);
-  }
-
-  buildEquity(d);buildSessBars(d);buildDonut(d);buildGradeChart(d);
+  buildEquity(d);buildSessBars(d);buildMonthChart(d);buildDonut(d);buildGradeChart(d);buildMonthTable(d);
 }
 
 // Chart helpers
@@ -1223,6 +1043,15 @@ function renderLog(){
   document.getElementById('pgEl').innerHTML=pg;
 }
 
+function exportCSV(){
+  const d=load();if(!d.length){toast('No trades to export','err');return}
+  const headers=['id','date','sess','sym','pos','r','maxR','grade','res','poi','tof','con','oe','of','smt','cix1','notes'];
+  const rows=d.map(t=>headers.map(h=>{const v=t[h]??'';return`"${String(v).replace(/"/g,'""')}"`}).join(','));
+  const blob=new Blob([headers.join(',')+'\n'+rows.join('\n')],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='cixtra_trades.csv';a.click();
+  toast('Exported','ok');
+}
+
 // ── TRADE MODAL ──────────────────────────────────────────────────────────────
 function openTrade(id){
   const t=load().find(x=>x.id===id);if(!t)return;
@@ -1273,16 +1102,37 @@ function previewImg(input,idx){
 }
 function editTrade(id){
   const t=load().find(x=>x.id===id);if(!t)return;
-  editingId=id;pendingImgs=t.imgs?[...t.imgs,null,null,null].slice(0,3):[null,null,null];
-  const set=(fid,val)=>{const el=document.getElementById(fid);if(el&&val!=null)el.value=val};
-  set('f-date',t.date);set('f-sess',t.sess);set('f-sym',t.sym);set('f-pos',t.pos);set('f-r',t.r);set('f-maxr',t.maxR);
-  set('f-grade',t.grade);set('f-res',t.res);set('f-poi',t.poi);set('f-tof',t.tof);set('f-con',t.con);
-  set('f-oe',t.oe);set('f-of',t.of);set('f-smt',t.smt);set('f-cix1',t.cix1);set('f-notes',t.notes);
-  pendingImgs.forEach((src,i)=>{if(!src)return;const slot=document.getElementById('slot'+(i+1));let img=slot.querySelector('img');if(!img){img=document.createElement('img');img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:7px';slot.appendChild(img)}img.src=src;slot.querySelector('.img-slot-label').style.display='none'});
+  // nav(null,'add') crashes — navigate directly instead
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-add').classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes("'add'"))n.classList.add('active')});
+  // Reset form first
+  editingId=null;pendingImgs=[null,null,null];
+  ['f-date','f-r','f-maxr','f-notes'].forEach(i=>{const el=document.getElementById(i);if(el)el.value=''});
+  ['f-sess','f-sym','f-pos','f-grade','f-res','f-poi','f-tof','f-con','f-oe','f-of','f-smt','f-cix1'].forEach(i=>{const el=document.getElementById(i);if(el)el.value=''});
+  for(let i=1;i<=3;i++){const slot=document.getElementById('slot'+i);if(!slot)continue;const img=slot.querySelector('img');if(img)img.remove();const lbl=slot.querySelector('.img-slot-label');if(lbl)lbl.style.display='';const inp=slot.querySelector('input');if(inp)inp.value=''}
+  // Fill with trade data
+  editingId=id;
+  pendingImgs=t.imgs?[...t.imgs,null,null,null].slice(0,3):[null,null,null];
+  const set=(fid,val)=>{const el=document.getElementById(fid);if(el&&val!=null&&val!==undefined)el.value=val};
+  set('f-date',t.date);set('f-sess',t.sess);set('f-sym',t.sym);set('f-pos',t.pos);
+  set('f-r',t.r);set('f-maxr',t.maxR||'');
+  set('f-grade',t.grade);set('f-res',t.res);set('f-poi',t.poi);
+  set('f-tof',t.tof);set('f-con',t.con);set('f-oe',t.oe);
+  set('f-of',t.of);set('f-smt',t.smt);set('f-cix1',t.cix1);set('f-notes',t.notes||'');
+  pendingImgs.forEach((src,i)=>{
+    if(!src)return;
+    const slot=document.getElementById('slot'+(i+1));if(!slot)return;
+    let img=slot.querySelector('img');
+    if(!img){img=document.createElement('img');img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:7px';slot.appendChild(img)}
+    img.src=src;
+    const lbl=slot.querySelector('.img-slot-label');if(lbl)lbl.style.display='none';
+  });
   document.getElementById('submitBtn').textContent='Update Trade';
   document.getElementById('deleteBtn').style.display='inline-flex';
   document.getElementById('formTitle').textContent='Edit Trade #'+id;
-  nav(null,'add');window.scrollTo(0,0);
+  window.scrollTo(0,0);
 }
 function submitTrade(){
   const g=id=>document.getElementById(id).value.trim();
@@ -1565,7 +1415,7 @@ function defaultRules(){return[
     'Also applies when: mid-range entry in consolidation, news approaching (CPI etc.), Trapped OF present at range boundaries',
     'Even if you miss the move entirely — that is fine. You cannot afford to be the liquidity that funds the real move.',
   ]},
-  {id:2,tag:'Trapped OF',title:'Trapped Order Flow',desc:'The single most impactful variable in your data. Trapped OF present = 11% win rate, -23.8R. Absent = 49% win rate, +62.3R. That is an +86.1R swing from the same CISD entry model. The entry is not the variable. This is.',bullets:[
+  {id:2,tag:'FILTER #1',title:'Trapped Order Flow',desc:'The single most impactful variable in your data. Trapped OF present = 11% win rate, -23.8R. Absent = 49% win rate, +62.3R. That is an +86.1R swing from the same CISD entry model. The entry is not the variable. This is.',bullets:[
     'Definition: Opposing liquidity (FVG, OB, IFVG) between current price and your target that has NOT been filled or inversed yet',
     'It means price is being asked to run through a wall of orders going the other way',
     'Check ALL three timeframes before every single trade: Daily, 4H, 1H',
@@ -1640,6 +1490,10 @@ function buildRules(){
       <div class="rule-title">${r.title}</div>
       <div class="rule-desc">${r.desc}</div>
       <div class="rule-list">${(r.bullets||[]).map(b=>`<div class="rule-li">${b}</div>`).join('')}</div>
+      <div class="rule-actions">
+        <button class="btn btn-ghost btn-sm" onclick="openEditRule(${r.id})">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteRule(${r.id})">Delete</button>
+      </div>
     </div>`).join('');
 }
 let editRuleId=null;
@@ -1892,140 +1746,6 @@ function updateClock(){
   if(el2)el2.textContent=`${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]}`;
 }
 updateClock();setInterval(updateClock,1000);
-
-// ── BACKUP & RESTORE ─────────────────────────────────────────────────────────
-let restorePendingData=null;
-
-function openBackupModal(){
-  // Update last backup date display
-  const last=localStorage.getItem('cx_last_backup');
-  document.getElementById('lastBackupDate').textContent=last?new Date(last).toLocaleString('nl-BE'):'Nog geen backup gemaakt';
-  document.getElementById('restorePreview').style.display='none';
-  restorePendingData=null;
-  document.getElementById('backupModal').classList.add('open');
-}
-function closeBackupModal(e){if(e.target===document.getElementById('backupModal'))closeBackupModalDirect()}
-function closeBackupModalDirect(){document.getElementById('backupModal').classList.remove('open')}
-
-function exportFullBackup(){
-  const backup={
-    version:2,
-    exportedAt:new Date().toISOString(),
-    trades:load(),
-    bias:loadB(),
-    prop:loadP(),
-    rules:loadR()
-  };
-  const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  const date=new Date().toISOString().split('T')[0];
-  a.download=`cixtra_backup_${date}.json`;
-  a.click();
-  URL.revokeObjectURL(a.href);
-  localStorage.setItem('cx_last_backup',new Date().toISOString());
-  document.getElementById('lastBackupDate').textContent=new Date().toLocaleString('nl-BE');
-  toast('Backup gedownload ✓','ok');
-}
-
-function exportCSVTrades(){
-  const d=load();
-  if(!d.length){toast('Geen trades om te exporteren','err');return}
-  const headers=['id','date','sess','sym','pos','r','maxR','grade','res','poi','tof','con','oe','of','smt','cix1','notes'];
-  const rows=d.map(t=>headers.map(h=>{const v=t[h]??'';return`"${String(v).replace(/"/g,'""')}"`}).join(','));
-  const blob=new Blob([headers.join(',')+'\n'+rows.join('\n')],{type:'text/csv'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download=`cixtra_trades_${new Date().toISOString().split('T')[0]}.csv`;
-  a.click();
-  URL.revokeObjectURL(a.href);
-  toast('CSV geëxporteerd ✓','ok');
-}
-
-function handleRestoreFile(input){
-  const file=input.files[0];
-  if(!file){return}
-  const reader=new FileReader();
-  reader.onload=e=>{
-    try{
-      const data=JSON.parse(e.target.result);
-      // Validate it looks like a CIXTRA backup
-      if(typeof data!=='object'||(!data.trades&&!data.version)){
-        toast('Ongeldig backup bestand','err');return;
-      }
-      restorePendingData=data;
-      // Show preview
-      const trades=data.trades||[];
-      const bias=data.bias||[];
-      const prop=data.prop||[];
-      const rules=data.rules||[];
-      const exportDate=data.exportedAt?new Date(data.exportedAt).toLocaleString('nl-BE'):'Onbekend';
-      document.getElementById('restoreInfo').innerHTML=`
-        <div style="font-weight:600;color:var(--txt);margin-bottom:6px">📋 Backup inhoud</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
-          <div>🗓 Geëxporteerd: <strong>${exportDate}</strong></div>
-          <div>📈 Trades: <strong>${trades.length}</strong></div>
-          <div>📝 Bias entries: <strong>${bias.length}</strong></div>
-          <div>🏢 Prop challenges: <strong>${prop.length}</strong></div>
-          <div>📋 Rules: <strong>${rules.length}</strong></div>
-        </div>
-        <div style="margin-top:8px;padding:6px 8px;background:rgba(245,158,11,.08);border-radius:5px;font-size:.7rem;color:var(--orange)">
-          ⚠️ <strong>Vervang alles</strong> overschrijft al je huidige data. <strong>Samenvoegen</strong> voegt enkel nieuwe trades toe die nog niet bestaan.
-        </div>`;
-      document.getElementById('restorePreview').style.display='block';
-    }catch(err){
-      toast('Kan bestand niet lezen — is het een geldig CIXTRA backup?','err');
-      restorePendingData=null;
-    }
-  };
-  reader.readAsText(file);
-  // Reset input so same file can be selected again
-  input.value='';
-}
-
-function doRestore(mode){
-  if(!restorePendingData){toast('Geen backup geselecteerd','err');return}
-  const data=restorePendingData;
-  if(mode==='replace'){
-    showConfirm(
-      'Alles vervangen?',
-      'Dit overschrijft al je huidige trades, bias en prop data. Rules blijven bewaard. Weet je het zeker?',
-      ()=>{
-        save(data.trades||[]);
-        saveB(data.bias||[]);
-        saveP(data.prop||[]);
-        // Only restore rules if backup has them and user confirms
-        if(data.rules&&data.rules.length>0)saveR(data.rules);
-        toast(`Restore geslaagd — ${(data.trades||[]).length} trades teruggezet ✓`,'ok');
-        closeBackupModalDirect();
-        buildDashboard();buildVariables();renderLog();buildRules();
-        restorePendingData=null;
-      }
-    );
-  } else {
-    // Merge — only add trades that don't already exist (by date+sym+r combo)
-    const existing=load();
-    const existingKeys=new Set(existing.map(t=>`${t.date}_${t.sym}_${t.r}`));
-    const newTrades=(data.trades||[]).filter(t=>`${t.date}_${t.sym}_${t.r}` && !existingKeys.has(`${t.date}_${t.sym}_${t.r}`));
-    // Renumber IDs
-    let maxId=existing.length?Math.max(...existing.map(t=>t.id||0)):0;
-    newTrades.forEach(t=>{maxId++;t.id=maxId});
-    save([...existing,...newTrades]);
-    // Merge bias (by date)
-    const existingBias=loadB();const existingBiasDates=new Set(existingBias.map(b=>b.date));
-    const newBias=(data.bias||[]).filter(b=>!existingBiasDates.has(b.date));
-    saveB([...existingBias,...newBias]);
-    toast(`${newTrades.length} nieuwe trades en ${newBias.length} bias entries toegevoegd ✓`,'ok');
-    closeBackupModalDirect();
-    buildDashboard();buildVariables();renderLog();
-    restorePendingData=null;
-  }
-}
-
-function cancelRestore(){
-  restorePendingData=null;
-  document.getElementById('restorePreview').style.display='none';
-}
 
 // ── INIT ────────────────────────────────────────────────────────────────────
 buildDashboard();buildRules();
